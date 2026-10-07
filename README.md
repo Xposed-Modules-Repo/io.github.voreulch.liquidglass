@@ -114,7 +114,7 @@ All parameters are system properties; after `setprop`, re-pull the panel to see 
 | `persist.sys.lgr.nmask` | 0.0–1.0 | 0 | 通知卡片底色浓度 Notification card tint |
 | `persist.sys.lgr.folder` | 0/1 | 0 | 套用桌面文件夹玻璃配方（折射/厚度/色散绝对值） Apply the launcher-folder optics recipe |
 | `persist.sys.lgr.refract` | 0.2–3.0 | 1.0 | 折射与深度倍率（透镜弯折） Refraction & depth |
-| `persist.sys.lgr.thick` | 0.2–3.0 | 未设 | 玻璃厚度（边缘折射带宽度） Thickness (refraction band width) |
+| `persist.sys.lgr.thick` | 0.2–3.0 | 未设 | 玻璃厚度（边缘折射带宽度）；folder 模式下作为 0.62 基准的倍率 Thickness (refraction band width); in folder mode a multiplier on the 0.62 base |
 | `persist.sys.lgr.disp` | 0.0–3.0 | 未设 | 色散强度（彩虹边缘） Dispersion (chromatic fringe) |
 | `persist.sys.lgr.edge` | 0.5–3.0 | 1.0 | 边光带宽度 Rim-light band width |
 | `persist.sys.lgr.rim` | 0.15–1.0 | 1.0 | 边光亮度 Rim-light brightness |
