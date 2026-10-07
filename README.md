@@ -109,6 +109,7 @@ All parameters are system properties; after `setprop`, re-pull the panel to see 
 | --- | --- | --- | --- |
 | `persist.sys.lgr.mask` | 0.0–1.0 | 1.0 | 面板遮罩浓度（原厂 62%，越小越通透） Panel veil opacity (stock 62%) |
 | `persist.sys.lgr.radius` | 0.3–2.0 | 1.0 | 背景模糊半径倍率 Background blur radius |
+| `persist.sys.lgr.tblur` | 0.1–2.0 | 1.0 | 磁贴/通知卡片自身二次模糊倍率（残留磨砂感的主要来源） Per-tile second-pass blur scale (the residual frosted look) |
 | `persist.sys.lgr.sat` | 0.8–2.0 | 1.0 | 光泽/饱和度倍率 Gloss (saturation) |
 | `persist.sys.lgr.nmask` | 0.0–1.0 | 0 | 通知卡片底色浓度 Notification card tint |
 | `persist.sys.lgr.folder` | 0/1 | 0 | 套用桌面文件夹玻璃配方（折射/厚度/色散绝对值） Apply the launcher-folder optics recipe |
@@ -167,6 +168,8 @@ into `tools/` before building.
 
 ## 版本历史 / Changelog
 
+* **2.2**（2026-10-07）：新增 `tblur` 参数——磁贴与通知卡片在已模糊背景上还有一层自身二次模糊（`blurRadius` ≈5.6px），这是残留磨砂感的主要来源；该参数独立缩放这层模糊，与背景模糊 `radius` 解耦，磁贴可单独变得通透。
+  New `tblur` prop: tiles / notification cards re-blur the already-blurred panel bitmap with their own `blurRadius` (~5.6px) — the residual frosted look. Scales that second pass independently of the background blur.
 * **2.1**（2026-10-07）：首个公开发布——还原液态材质位/HIGH 机型路径/材质类型；面板遮罩、模糊半径、光泽、通知卡片底色、折射/厚度/色散、边光宽度与亮度全参数实时可调；新增桌面文件夹玻璃配方（`folder=1`）。
   First public release: restores the liquid material bits and HIGH render path, full live-tunable optics, plus the launcher-folder glass recipe.
 
