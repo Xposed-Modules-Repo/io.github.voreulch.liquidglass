@@ -1,0 +1,4 @@
+恢复 MagicOS11 阉割的液态玻璃效果 by VoreulCH@Github
+Restores the liquid-glass effect that MagicOS 11's update gutted from the control center / notification shade, with a full set of live-tunable optics parameters (veil, blur, gloss, refraction, dispersion, rim light) and the stock launcher-folder glass recipe.
+
+Source: https://github.com/VoreulCH/HonorLiquidGlassRestore
