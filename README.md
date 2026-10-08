@@ -11,15 +11,17 @@
 
 恢复 MagicOS11 阉割的液态玻璃效果 by VoreulCH@Github
 
-面向荣耀 MagicOS 11 的 LSPosed 模块：系统 OTA 更新后，控制中心/通知中心的「液态玻璃」材质被降级为普通磨砂玻璃。本模块在系统界面与桌面进程内还原被阉割的渲染路径与材质位，让玻璃重新通透起来，并提供**遮罩浓度、模糊半径、光泽、折射、色散、边光**等全套实时可调参数，以及一键套用**荣耀桌面文件夹的原生玻璃配方**。
+面向荣耀 MagicOS 11 的 LSPosed 模块：系统 OTA 更新后，控制中心/通知中心的「液态玻璃」材质被降级为普通磨砂玻璃。本模块在系统界面与桌面进程内还原被阉割的渲染路径与材质位，让玻璃重新通透起来，并把**锁屏通知卡片与快捷按钮**也纳入液态玻璃渲染。所有参数实时可调（**遮罩浓度、模糊半径、光泽、折射、色散、边光**），支持一键套用**荣耀桌面文件夹的原生玻璃配方**。默认参数已按逐项调校的定稿配方烤入——装上即得调校后的观感，无需任何 setprop。
 
 An LSPosed module for Honor MagicOS 11: the system update silently downgraded the
 liquid-glass material of the control center / notification shade to plain frosted
 glass. This module restores the gutted render path and material bits inside
-SystemUI and the launcher, and exposes a full set of live-tunable optics
+SystemUI and the launcher, extends liquid glass to the **lock-screen notification
+cards and shortcut buttons**, and exposes a full set of live-tunable optics
 parameters (veil, blur radius, gloss, refraction, dispersion, rim light),
 including a one-switch preset that applies the **stock glass recipe of the
-Honor launcher folder**.
+Honor launcher folder**. The default values are baked-in and pre-calibrated —
+a fresh install reproduces the tuned look with zero setprop.
 
 ## 为什么做这个模块 / Why
 
@@ -49,7 +51,9 @@ frosted (`0x10000`). Net result: clear liquid glass turned into flat frosted gra
 | 文件夹玻璃配方 / Launcher-folder recipe | 从桌面反编译得到的原生配方（折射 0.3 / 深度 0.54 / 厚度 0.62 / 色散 0.2），`folder=1` 一键套用 / The stock folder optics (refraction 0.3 / depth 0.54 / thickness 0.62 / dispersion 0.2) recovered from the launcher — one switch applies it |
 | 折射/厚度/色散分调 / Independent optics | `refract` / `thick` / `disp` 分别缩放透镜弯折、边缘折射带宽度与彩虹色散 / Scale lens bending, refraction-band width and chromatic fringe separately |
 | 边光可调 / Rim light | `edge` 缩放 `EdgeLightParamEx` 边光带宽度（构造器级 Hook，内联免疫），`rim` 缩放边光亮度 / `edge` scales the rim band width (constructor hook, inline-proof), `rim` scales its brightness |
+| 锁屏玻璃 / Lock-screen glass | 静态壁纸下原厂锁屏卡片/按钮本就渲染扁平（模糊位图只对动态/杂志壁纸生成）。模块从锐利壁纸合成轻量模糊位图（走原厂 `ViewBlur.blurBitmap` 配方管线），重放给锁屏渲染链，卡片与快捷按钮即获得与通知栏一致的液态玻璃 / Static wallpapers never get a blur bitmap, so lock-screen cards/buttons render flat. The module synthesizes one from the sharp wallpaper through the stock `ViewBlur.blurBitmap` recipe and re-feeds the keyguard render chain — cards and buttons get the same liquid glass as the shade |
 | 全参数实时生效 / All props live | 改 prop 后收起再重拉面板即生效，无需重启 SystemUI / Change a prop, re-pull the panel — no restart needed |
+| 烤入定稿默认值 / Baked-in recipe | 全部默认值已按逐项调校的定稿配方烤入（遮罩 0.7 / 模糊 0.7 / 光泽 1.2 / 文件夹配方开 / 锁屏链开），`setprop X ""` 清空即回落烤入值 / All defaults are baked in pre-calibrated; clear a prop to fall back to the baked value |
 
 ## 原理 / How it works
 
@@ -101,31 +105,41 @@ across panels — notification cards are tinted at card level instead).
 
 ### 实时调参 / Live tuning
 
-所有参数走 `persist.sys.lgr.*` 系统属性，`setprop` 后收起再重拉面板即生效：
+所有参数走 `persist.sys.lgr.*` 系统属性，`setprop` 后收起再重拉面板即生效；**默认值即定稿配方（烤入 APK），正常使用无需任何设置**，以下仅供微调：
 
-All parameters are system properties; after `setprop`, re-pull the panel to see the change:
+All parameters are system properties; after `setprop`, re-pull the panel to see
+the change. **The defaults ARE the tuned recipe (baked into the APK) — no setup
+needed for normal use**; the table below is for fine-tuning only:
 
 | 属性 Prop | 范围 Range | 默认 Default | 作用 Effect |
 | --- | --- | --- | --- |
-| `persist.sys.lgr.mask` | 0.0–1.0 | 1.0 | 面板遮罩浓度（原厂 62%，越小越通透） Panel veil opacity (stock 62%) |
-| `persist.sys.lgr.radius` | 0.3–2.0 | 1.0 | 背景模糊半径倍率 Background blur radius |
-| `persist.sys.lgr.tblur` | 0.1–2.0 | 1.0 | 磁贴/通知卡片自身二次模糊倍率（残留磨砂感的主要来源） Per-tile second-pass blur scale (the residual frosted look) |
-| `persist.sys.lgr.sat` | 0.8–2.0 | 1.0 | 光泽/饱和度倍率 Gloss (saturation) |
-| `persist.sys.lgr.nmask` | 0.0–1.0 | 0 | 通知卡片底色浓度 Notification card tint |
-| `persist.sys.lgr.folder` | 0/1 | 0 | 套用桌面文件夹玻璃配方（折射/厚度/色散绝对值） Apply the launcher-folder optics recipe |
+| `persist.sys.lgr.mask` | 0.0–1.0 | 0.7 | 面板遮罩浓度（原厂 62%，越小越通透） Panel veil opacity (stock 62%) |
+| `persist.sys.lgr.radius` | 0.3–2.0 | 0.7 | 背景模糊半径倍率 Background blur radius |
+| `persist.sys.lgr.tblur` | 0.1–2.0 | 0.6 | 磁贴/通知卡片自身二次模糊倍率（残留磨砂感的主要来源） Per-tile second-pass blur scale (the residual frosted look) |
+| `persist.sys.lgr.sat` | 0.8–2.0 | 1.2 | 光泽/饱和度倍率 Gloss (saturation) |
+| `persist.sys.lgr.nmask` | 0.0–1.0 | 0.4 | 通知卡片底色浓度 Notification card tint |
+| `persist.sys.lgr.folder` | 0/1 | 1 | 套用桌面文件夹玻璃配方（折射/厚度/色散绝对值） Apply the launcher-folder optics recipe |
 | `persist.sys.lgr.refract` | 0.2–3.0 | 1.0 | 折射与深度倍率（透镜弯折） Refraction & depth |
-| `persist.sys.lgr.thick` | 0.2–3.0 | 未设 | 玻璃厚度（边缘折射带宽度）；folder 模式下作为 0.62 基准的倍率 Thickness (refraction band width); in folder mode a multiplier on the 0.62 base |
-| `persist.sys.lgr.disp` | 0.0–3.0 | 未设 | 色散强度（彩虹边缘） Dispersion (chromatic fringe) |
-| `persist.sys.lgr.edge` | 0.5–3.0 | 1.0 | 边光带宽度 Rim-light band width |
+| `persist.sys.lgr.thick` | 0.2–3.0 | 1.4 | 玻璃厚度（边缘折射带宽度）；folder 模式下作为 0.62 基准的倍率 Thickness (refraction band width); in folder mode a multiplier on the 0.62 base |
+| `persist.sys.lgr.disp` | 0.0–3.0 | 0.25 | 色散强度（彩虹边缘） Dispersion (chromatic fringe) |
+| `persist.sys.lgr.edge` | 0.5–3.0 | 1.4 | 边光带宽度 Rim-light band width |
 | `persist.sys.lgr.rim` | 0.15–1.0 | 1.0 | 边光亮度 Rim-light brightness |
+| `persist.sys.lgr.kbblur` | 0–40 | 4 | 锁屏合成位图模糊半径（0=原厂重磨砂 bokeh） Lock-screen synthesized bitmap blur radius (0 = stock heavy bokeh) |
+| `persist.sys.lgr.kveil` | 0.0–2.0 | 0.7 | 锁屏卡片独立纱深浅 Lock-screen-only veil multiplier |
+| `persist.sys.lgr.kbbright` | 0.0–0.5 | 0.22 | 锁屏卡面亮度 Lock-screen card face brightness |
+| `persist.sys.lgr.kedge` | 0.5–3.0 | 1.4 | 锁屏独立边光宽度 Lock-screen-only rim width |
+| `persist.sys.lgr.kbg`/`keng`/`kicon` | 0/1 | 1 | 锁屏玻璃链三开关（位图捕获/引擎通知/按钮路由），全部关闭即完全回退原厂锁屏渲染 The three lock-screen chain switches; all off = full stock lock-screen rendering |
 
 示例 / Example:
 
 ```
 adb shell su -c "setprop persist.sys.lgr.mask 0.7"      # 更沉稳的遮罩
-adb shell su -c "setprop persist.sys.lgr.folder 1"      # 文件夹质感
-adb shell su -c "setprop persist.sys.lgr.nmask 0.4"     # 通知更可读
+adb shell su -c "setprop persist.sys.lgr.kveil 0.8"     # 锁屏卡片更深一点
+adb shell su -c "setprop persist.sys.lgr.mask \"\""     # 清空=回落烤入默认值
 ```
+
+**逃生门 / Escape hatch**：锁屏如遇任何异常，`setprop persist.sys.lgr.kbg 0 && setprop persist.sys.lgr.keng 0 && setprop persist.sys.lgr.kicon 0` 后重启 SystemUI 即完全回到原厂锁屏渲染（面板效果不受影响）。
+If the lock screen ever misbehaves, zero out `kbg`/`keng`/`kicon` and restart SystemUI — the lock screen returns to 100% stock rendering (panel effects unaffected).
 
 ### 已知问题 / Known issues
 
@@ -168,6 +182,8 @@ into `tools/` before building.
 
 ## 版本历史 / Changelog
 
+* **2.5.18**（2026-10-09）：**锁屏液态玻璃 + 定稿配方烤入**。①锁屏通知卡片与快捷按钮获得与通知栏一致的液态玻璃（静态壁纸下原厂锁屏本就无模糊位图、渲染扁平；模块从锐利壁纸经原厂 `ViewBlur.blurBitmap` 管线合成轻量位图并重放给锁屏渲染链）；②卡片配方逐项对齐通知栏：卡面提亮（`kbbright`）、独立纱深浅（`kveil`）、独立边光宽度（`kedge`）、合成模糊半径（`kbblur`）；③全部调校参数烤入 APK 默认值，装上即得定稿观感，`setprop` 覆盖、清空回落；④移除 v2.3 时代的实验性引擎旁路代码（kglass）与被取代的旧合成路径，代码瘦身 440 行。
+  **Lock-screen liquid glass + baked-in recipe.** Lock-screen cards/buttons now match the shade look (stock renders them flat on static wallpapers — no blur bitmap is ever generated; the module synthesizes one from the sharp wallpaper through the stock `ViewBlur.blurBitmap` pipeline and re-feeds the keyguard chain). Card recipe aligned to the shade item by item (face brightness, veil, rim width, blur radius), all tuned defaults baked into the APK, and the v2.3-era experimental engine-bypass code removed (−440 lines).
 * **2.2**（2026-10-07）：新增 `tblur` 参数——磁贴与通知卡片在已模糊背景上还有一层自身二次模糊（`blurRadius` ≈5.6px），这是残留磨砂感的主要来源；该参数独立缩放这层模糊，与背景模糊 `radius` 解耦，磁贴可单独变得通透。
   New `tblur` prop: tiles / notification cards re-blur the already-blurred panel bitmap with their own `blurRadius` (~5.6px) — the residual frosted look. Scales that second pass independently of the background blur.
 * **2.1**（2026-10-07）：首个公开发布——还原液态材质位/HIGH 机型路径/材质类型；面板遮罩、模糊半径、光泽、通知卡片底色、折射/厚度/色散、边光宽度与亮度全参数实时可调；新增桌面文件夹玻璃配方（`folder=1`）。
