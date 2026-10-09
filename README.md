@@ -1,3 +1,7 @@
+> ## ⚠️ 本模块已并入「药师 HonorAdvancedSettings」/ Merged into HonorAdvancedSettings
+> 全部功能已整合进 [HonorAdvancedSettings（药师）](<https://github.com/VoreulCH/HonorAdvancedSettings>) 并持续更新。请迁移到新模块并卸载本模块——**两者勿同时启用**（钩子会重复挂载）。
+> All features now live in [HonorAdvancedSettings](https://github.com/VoreulCH/HonorAdvancedSettings) and are maintained there. Please migrate and uninstall this module — **do not run both at once**.
+
 # HonorLiquidGlassRestore（荣耀液态玻璃恢复）
 
 > ## ⚠️ 本模块由 AI 生成 / This module is AI-generated
