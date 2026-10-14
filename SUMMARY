@@ -1,6 +1,6 @@
-（已并入 HonorAdvancedSettings，请迁移新模块）
+（已并入 药师·荣耀高级设置，请迁移新模块）
 恢复 MagicOS11 阉割的液态玻璃效果 by VoreulCH@Github
-Restores the liquid-glass effect that MagicOS 11's update gutted from the control center / notification shade, with a full set of live-tunable optics parameters (veil, blur, gloss, refraction, dispersion, rim light) and the stock launcher-folder glass recipe.
+面向荣耀 MagicOS 11 的 LSPosed 模块：系统 OTA 更新后，控制中心/通知中心的「液态玻璃」材质被降级为普通磨砂玻璃。本模块在系统界面与桌面进程内还原被阉割的渲染路径与材质位，让玻璃重新通透起来，并把锁屏通知卡片与快捷按钮也纳入液态玻璃渲染。
 
 Source: https://github.com/VoreulCH/HonorLiquidGlassRestore
 
